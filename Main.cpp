@@ -13,6 +13,7 @@
 
 // Include class files
 #include "Image.h"
+#include "Sound.h"
 #include <iostream>
 #include "Windows.h"
 #include "MMSystem.h"
@@ -28,15 +29,18 @@
 #include <cstdlib>
 
 // Global Variables:
-MyImage			inImage, outImage;
 MyImage			vid1[FRAMES], vid2[FRAMES];
 MyImage			*leftImg, *rightImg;
 int LeftPlayingFrame = 0;
 int RightPlayingFrame = 0;
 int frametime[FRAMES];
-bool loadedframe1[FRAMES];
+bool loadedframe1[FRAMES] = {};
+bool loadedframe2[FRAMES] = {};
 
-char			SoundPath[_MAX_PATH];			// sound wav file
+SoundPlayer sp1, sp2;
+
+char			SoundPath1[_MAX_PATH];			// sound wav file
+char			SoundPath2[_MAX_PATH];			// sound wav file
 HINSTANCE		hInst;							// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// The title bar text
@@ -76,6 +80,33 @@ DWORD WINAPI loadframe2(void* data) {
 	return 0;
 }
 
+DWORD WINAPI loadframe3(void* data) {
+	for (int i = BUFFER; i < FRAMES; i += 2)
+	{
+		while (LeftPlayingFrame + BUFFER < i)
+			Sleep(10);
+		if (vid2[i].ReadImage())
+			loadedframe2[i] = true;
+		else
+			AfxMessageBox("Could not read image");
+	}
+	return 0;
+}
+
+DWORD WINAPI loadframe4(void* data) {
+	int paused = false;
+	for (int i = BUFFER + 1; i < FRAMES; i += 2)
+	{
+		while (LeftPlayingFrame + BUFFER < i)
+			Sleep(10);
+		if (vid2[i].ReadImage())
+			loadedframe2[i] = true;
+		else
+			AfxMessageBox("Could not read image");
+	}
+	return 0;
+}
+
 
 
 // Main entry point for a windows application
@@ -94,18 +125,29 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	// Read in the image and its copy
 	// width and height is currently fixed to 352 288
 	int w = 352, h = 288;
-	char ImagePath[_MAX_PATH] = {};
+	char FramePath1[_MAX_PATH] = {};
+	char FramePath2[_MAX_PATH] = {};
 
 	//sscanf(lpCmdLine, "%s %d %d %s", &ImagePath, &w, &h, &SoundPath);
 	
 
 	//command line args: Image.exe ImagePath SoundPath
 	//For the image path, don't add the number(0000/0001/...) and .rgb
-	//Ex. 
+	//Ex. AIFilmOne0000.rgb (x), AIFilmOne (o)
 
 	//Ex. Image.exe AIFilmOne\AIFilmOne AIFilmOne\AIFilmOne.wav
-	sscanf(lpCmdLine, "%s %s", &ImagePath, &SoundPath);
+	
+	//load one video
+	//sscanf(lpCmdLine, "%s %s", &FramePath1, &SoundPath1);
 
+	//load two videos
+	sscanf(lpCmdLine, "%s %s %s %s", &FramePath1, &SoundPath1, &FramePath2, &SoundPath2);
+
+	//setting sound path
+	sp1.SetPath(SoundPath1);
+	sp2.SetPath(SoundPath2);
+	sp1.Setup();
+	sp2.Setup();
 
 	//setting image path
 	for (int i = 1; i <= FRAMES; i++)
@@ -121,10 +163,29 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 			ss << "0" << i;
 		else
 			ss << i;
-		string imgpath = string(ImagePath) + ss.str() + string(".rgb");
+		string imgpath = string(FramePath1) + ss.str() + string(".rgb");
 		vid1[i - 1].setImagePath(imgpath.c_str());
 		frametime[i - 1] = (1000 * (i - 1)) / 30;
 	}
+
+	for (int i = 1; i <= FRAMES; i++)
+	{
+		stringstream ss;
+		vid2[i - 1].setWidth(w);
+		vid2[i - 1].setHeight(h);
+		if (i < 10)
+			ss << "000" << i;
+		else if (i < 100)
+			ss << "00" << i;
+		else if (i < 1000)
+			ss << "0" << i;
+		else
+			ss << i;
+		string imgpath = string(FramePath2) + ss.str() + string(".rgb");
+		vid2[i - 1].setImagePath(imgpath.c_str());
+		frametime[i - 1] = (1000 * (i - 1)) / 30;
+	}
+
 	//buffering
 	for (int i = 1; i <= BUFFER; i++)
 	{
@@ -132,9 +193,17 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 			AfxMessageBox("Could not read image");
 	}
 
+	for (int i = 1; i <= BUFFER; i++)
+	{
+		if (!vid2[i - 1].ReadImage())
+			AfxMessageBox("Could not read image");
+	}
+
 	//Using threads to load frames
 	HANDLE thread1 = CreateThread(NULL, 0, loadframe1, NULL, 0, NULL);
 	HANDLE thread2 = CreateThread(NULL, 0, loadframe2, NULL, 0, NULL);
+	HANDLE thread3 = CreateThread(NULL, 0, loadframe3, NULL, 0, NULL);
+	HANDLE thread4 = CreateThread(NULL, 0, loadframe4, NULL, 0, NULL);
 	//WaitForSingleObject(thread1, INFINITE);
 	//WaitForSingleObject(thread2, INFINITE);
 
@@ -284,15 +353,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				   DialogBox(hInst, (LPCTSTR)IDD_ABOUTBOX, hWnd, (DLGPROC)About);
 				   break;
 				case ID_READ_LEFT_VIDEO:
-					openFile(hWnd);
+					//openFile(hWnd);
+					
 					break;
 				case ID_READ_RIGHT_VIDEO:
 					
 					break; 
 				case ID_MODIFY_IMAGE:
-				   PlaySound(TEXT(SoundPath), NULL, SND_ASYNC);			// New addition to the code to play a wav file
+				   /*PlaySound(TEXT(SoundPath1), NULL, SND_ASYNC);			// New addition to the code to play a wav file
 				   outImage.Modify();
-				   InvalidateRect(hWnd, &rt, false); 
+				   InvalidateRect(hWnd, &rt, false); */
 				   break;
 				case IDM_EXIT:
 				   DestroyWindow(hWnd);
@@ -314,18 +384,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					start = true;
 					memcpy(&starttime, &ft, sizeof(starttime));
 					SetTimer(hWnd, IDT_TIMER_1, 5, (TIMERPROC)NULL);
-					stringstream ss;
-					ss << "open " << SoundPath << " alias WAV";
-					mciSendString(ss.str().c_str(), NULL, 0, NULL);
-					mciSendString("play WAV", NULL, 0, NULL);
+
+					sp1.SoundPlay();
+					sp2.SoundPlay();
 					//PlaySound(TEXT(SoundPath), NULL, SND_ASYNC);
+
 				}
 				hdc = BeginPaint(hWnd, &ps);
 				// TO DO: Add any drawing code here...
 				//char text[1000];
 				//strcpy(text, inImage[frame].getImagePath());
-				//DrawText(hdc, text, strlen(text), &rt, DT_LEFT);
-				//strcpy(text, "\nUpdate program with your code to modify input image");
 				//DrawText(hdc, text, strlen(text), &rt, DT_LEFT);
 				long long int ms = ((long long int)nowtime.QuadPart - (long long int)starttime.QuadPart) / 10000;
 				bool increment = false;
@@ -336,12 +404,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					leftImg = &vid1[LeftPlayingFrame];
 					increment = true;
 				}
+				//sp1.SoundPause();
+				//sp1.SoundResume();
+				//sp1.SoundStop();
+				//sp1.SoundPlay();
+				cout << "Frame: " << LeftPlayingFrame << endl;
+				while (RightPlayingFrame < FRAMES && ms >= frametime[RightPlayingFrame + 1])
+				{
+					vid2[RightPlayingFrame].Delete();
+					RightPlayingFrame++;
+					rightImg = &vid2[RightPlayingFrame];
+					increment = true;
+				}
+
 				if (!increment)
 					break;
-				if(LeftPlayingFrame == 500)
-					mciSendString("pause WAV", NULL, 0, NULL);
-				if (LeftPlayingFrame == 1500)
-					mciSendString("resume WAV", NULL, 0, NULL);
 				BITMAPINFO bmi;
 				CBitmap bitmap;
 				memset(&bmi,0,sizeof(bmi));
@@ -357,10 +434,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 								  0,100, leftImg->getWidth(), leftImg->getHeight(),
 								  0,0,0, leftImg->getHeight(),
 								  leftImg->getImageData(),&bmi,DIB_RGB_COLORS);
-				/*SetDIBitsToDevice(hdc,
+				SetDIBitsToDevice(hdc,
 								  rightImg->getWidth()+50,100,rightImg->getWidth(),rightImg->getHeight(),
 								  0,0,0,rightImg->getHeight(),
-								  rightImg->getImageData(),&bmi,DIB_RGB_COLORS);*/
+								  rightImg->getImageData(),&bmi,DIB_RGB_COLORS);
 
 
 				EndPaint(hWnd, &ps);
