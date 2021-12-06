@@ -14,6 +14,7 @@
 // Include class files
 #include "Image.h"
 #include "Sound.h"
+#include "Video.h"
 #include <iostream>
 #include "Windows.h"
 #include "MMSystem.h"
@@ -38,6 +39,7 @@ bool loadedframe1[FRAMES] = {};
 bool loadedframe2[FRAMES] = {};
 
 SoundPlayer sp1, sp2;
+VideoPlayer vp1, vp2;
 
 char			SoundPath1[_MAX_PATH];			// sound wav file
 char			SoundPath2[_MAX_PATH];			// sound wav file
@@ -52,7 +54,7 @@ LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
 using namespace std;
-
+/*
 DWORD WINAPI loadframe1(void* data) {
 	for (int i = BUFFER; i < FRAMES; i += 2)
 	{
@@ -106,8 +108,7 @@ DWORD WINAPI loadframe4(void* data) {
 	}
 	return 0;
 }
-
-
+*/
 
 // Main entry point for a windows application
 int APIENTRY WinMain(HINSTANCE hInstance,
@@ -148,64 +149,12 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	sp2.SetPath(SoundPath2);
 	sp1.Setup();
 	sp2.Setup();
-
-	//setting image path
-	for (int i = 1; i <= FRAMES; i++)
-	{
-		stringstream ss;
-		vid1[i - 1].setWidth(w);
-		vid1[i - 1].setHeight(h);
-		if (i < 10)
-			ss << "000" << i;
-		else if (i < 100)
-			ss << "00" << i;
-		else if (i < 1000)
-			ss << "0" << i;
-		else
-			ss << i;
-		string imgpath = string(FramePath1) + ss.str() + string(".rgb");
-		vid1[i - 1].setImagePath(imgpath.c_str());
-		frametime[i - 1] = (1000 * (i - 1)) / 30;
-	}
-
-	for (int i = 1; i <= FRAMES; i++)
-	{
-		stringstream ss;
-		vid2[i - 1].setWidth(w);
-		vid2[i - 1].setHeight(h);
-		if (i < 10)
-			ss << "000" << i;
-		else if (i < 100)
-			ss << "00" << i;
-		else if (i < 1000)
-			ss << "0" << i;
-		else
-			ss << i;
-		string imgpath = string(FramePath2) + ss.str() + string(".rgb");
-		vid2[i - 1].setImagePath(imgpath.c_str());
-		frametime[i - 1] = (1000 * (i - 1)) / 30;
-	}
-
-	//buffering
-	for (int i = 1; i <= BUFFER; i++)
-	{
-		if (!vid1[i - 1].ReadImage())
-			AfxMessageBox("Could not read image");
-	}
-
-	for (int i = 1; i <= BUFFER; i++)
-	{
-		if (!vid2[i - 1].ReadImage())
-			AfxMessageBox("Could not read image");
-	}
-
-	//Using threads to load frames
-	HANDLE thread1 = CreateThread(NULL, 0, loadframe1, NULL, 0, NULL);
-	HANDLE thread2 = CreateThread(NULL, 0, loadframe2, NULL, 0, NULL);
-	HANDLE thread3 = CreateThread(NULL, 0, loadframe3, NULL, 0, NULL);
-	HANDLE thread4 = CreateThread(NULL, 0, loadframe4, NULL, 0, NULL);
-	//WaitForSingleObject(thread1, INFINITE);
-	//WaitForSingleObject(thread2, INFINITE);
+	vp1.SetPath(FramePath1);
+	vp2.SetPath(FramePath2);
+	vp1.Setup();
+	vp2.Setup();
+	//vp1.LoadFramesDoubleThread(BUFFER);
+	//vp2.LoadFramesDoubleThread(BUFFER);
 
 	// Initialize global strings
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -320,7 +269,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 // TO DO: part useful to render video frames, may place your own code here in this function
 // You are free to change the following code in any way in order to display the video
 	static bool start = false;
-	static ULARGE_INTEGER starttime;
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
 	HDC hdc;
@@ -354,10 +302,48 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				   break;
 				case ID_READ_LEFT_VIDEO:
 					//openFile(hWnd);
-					
+					if (vp1.IsPlaying())
+					{
+						vp1.VideoPause();
+						sp1.SoundPause();
+					}
+					else if(vp1.IsPaused())
+					{
+						vp1.VideoResume();
+						sp1.SoundResume();
+					}
+					if (vp2.IsPlaying())
+					{
+						vp2.VideoPause();
+						sp2.SoundPause();
+					}
+					else if (vp2.IsPaused())
+					{
+						vp2.VideoResume();
+						sp2.SoundResume();
+					}
 					break;
 				case ID_READ_RIGHT_VIDEO:
-					
+					if (vp1.IsPlaying() || vp1.IsPaused())
+					{
+						vp1.VideoStop();
+						sp1.SoundStop();
+					}
+					else
+					{
+						vp1.VideoPlay();
+						sp1.SoundPlay();
+					}
+					if (vp2.IsPlaying() || vp2.IsPaused())
+					{
+						vp2.VideoStop();
+						sp2.SoundStop();
+					}
+					else
+					{
+						vp2.VideoPlay();
+						sp2.SoundPlay();
+					}
 					break; 
 				case ID_MODIFY_IMAGE:
 				   /*PlaySound(TEXT(SoundPath1), NULL, SND_ASYNC);			// New addition to the code to play a wav file
@@ -373,18 +359,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case WM_PAINT:
 			{
-				SYSTEMTIME st;
-				FILETIME ft;
-				ULARGE_INTEGER nowtime;
-				GetSystemTime(&st);
-				SystemTimeToFileTime(&st, &ft);
-				memcpy(&nowtime, &ft, sizeof(nowtime));
+				
 				if (!start)
 				{
+					
 					start = true;
-					memcpy(&starttime, &ft, sizeof(starttime));
 					SetTimer(hWnd, IDT_TIMER_1, 5, (TIMERPROC)NULL);
-
+					
+					vp1.VideoPlay();
+					vp2.VideoPlay();
 					sp1.SoundPlay();
 					sp2.SoundPlay();
 					//PlaySound(TEXT(SoundPath), NULL, SND_ASYNC);
@@ -395,30 +378,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				//char text[1000];
 				//strcpy(text, inImage[frame].getImagePath());
 				//DrawText(hdc, text, strlen(text), &rt, DT_LEFT);
-				long long int ms = ((long long int)nowtime.QuadPart - (long long int)starttime.QuadPart) / 10000;
-				bool increment = false;
-				while(LeftPlayingFrame < FRAMES && ms >= frametime[LeftPlayingFrame + 1])
-				{
-					vid1[LeftPlayingFrame].Delete();
-					LeftPlayingFrame++;
-					leftImg = &vid1[LeftPlayingFrame];
-					increment = true;
-				}
-				//sp1.SoundPause();
-				//sp1.SoundResume();
-				//sp1.SoundStop();
-				//sp1.SoundPlay();
-				cout << "Frame: " << LeftPlayingFrame << endl;
-				while (RightPlayingFrame < FRAMES && ms >= frametime[RightPlayingFrame + 1])
-				{
-					vid2[RightPlayingFrame].Delete();
-					RightPlayingFrame++;
-					rightImg = &vid2[RightPlayingFrame];
-					increment = true;
-				}
-
-				if (!increment)
-					break;
+				
+				leftImg = vp1.GetFrame();
+				rightImg = vp2.GetFrame();
 				BITMAPINFO bmi;
 				CBitmap bitmap;
 				memset(&bmi,0,sizeof(bmi));

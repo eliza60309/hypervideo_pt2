@@ -6,12 +6,6 @@ SoundPlayer::SoundPlayer()
 {
 }
 
-SoundPlayer::SoundPlayer(char *c)
-{
-	SoundPath = c;
-	Setup();
-}
-
 int SoundPlayer::SetPath(char* c)
 {
 	SoundPath = c;
@@ -26,7 +20,7 @@ int SoundPlayer::Setup()
 	SoundPlayCmd = std::string("play ") + SoundPath + std::string(" from 0");
 	SoundPauseCmd = std::string("pause ") + SoundPath;
 	SoundResumeCmd = std::string("resume ") + SoundPath;
-	SoundStopCmd = std::string("stop ") + SoundPath;
+	SoundStopCmd = std::string("pause ") + SoundPath;
 	return 0;
 }
 

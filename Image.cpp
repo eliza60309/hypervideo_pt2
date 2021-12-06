@@ -39,8 +39,12 @@ MyImage::MyImage(MyImage* otherImage) {
 
 int MyImage::Delete() {
 	if (Data)
+	{
 		delete Data;
-	return 0;
+		return 1;
+	}
+	else
+		return 0;
 }
 
 

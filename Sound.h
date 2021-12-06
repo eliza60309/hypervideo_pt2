@@ -18,8 +18,7 @@ class SoundPlayer
 
 	public:
 	SoundPlayer();
-	SoundPlayer(char *c);
-	int SetPath(char* c);
+	int SetPath(char *);
 	int Setup();
 	int SoundPlay();
 	int SoundPause();
