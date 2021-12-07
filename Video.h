@@ -12,6 +12,7 @@
 
 #include "Image.h"
 #include "Windows.h"
+#include "Sound.h"
 
 
 #define FRAMES 9000
@@ -30,7 +31,6 @@ class VideoPlayer
 	MyImage Frame[FRAMES];
 	int FrameTime[FRAMES];
 	bool LoadedFrames[FRAMES] = {};
-	int FramesCount;
 	int NowPlaying;
 	long long int StartTime, PauseTime;
 	long long int TimeElapsed;
@@ -39,6 +39,8 @@ class VideoPlayer
 	HANDLE Thread1, Thread2;
 	int ThreadStart1, ThreadStart2;
 	bool PreBuffered;
+	SoundPlayer sp;
+
 
 	public:
 	VideoPlayer();

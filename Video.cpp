@@ -14,8 +14,8 @@ int VideoPlayer::Setup()
 	KillThread1 = false;
 	KillThread2 = false;
 	NowPlaying = 0;
-	FramesCount = 0;
 	Playing = false;
+	sp.Setup();
 	for (int i = 1; i <= FRAMES; i++)
 	{
 		std::stringstream ss;
@@ -46,10 +46,7 @@ int VideoPlayer::Buffer(int start)
 		if (LoadedFrames[i])
 			continue;
 		if (Frame[i].ReadImage())
-		{
 			LoadedFrames[i] = true;
-			FramesCount++;
-		}
 		else
 			AfxMessageBox("Could not read image");
 	}
@@ -74,10 +71,7 @@ DWORD WINAPI loadframe(void* data) {
 		if (vp->LoadedFrames[i])
 			continue;
 		if (vp->Frame[i].ReadImage())
-		{
 			vp->LoadedFrames[i] = true;
-			vp->FramesCount++;
-		}
 		else
 			AfxMessageBox("Could not read image");
 	}
@@ -109,11 +103,7 @@ DWORD WINAPI loadframe1(void* data) {
 		if (vp->LoadedFrames[i])
 			continue;
 		if (vp->Frame[i].ReadImage())
-		{
 			vp->LoadedFrames[i] = true;
-			vp->FramesCount++;
-			std::cout << "Loaded " << i << std::endl;
-		}
 		else
 			AfxMessageBox("Could not read image");
 	}
@@ -145,11 +135,7 @@ DWORD WINAPI loadframe2(void* data) {
 		if (vp->LoadedFrames[i])
 			continue;
 		if (vp->Frame[i].ReadImage())
-		{
 			vp->LoadedFrames[i] = true;
-			vp->FramesCount++;
-			std::cout << "Loaded " << i << std::endl;
-		}
 		else
 			AfxMessageBox("Could not read image");
 	}
@@ -217,7 +203,6 @@ int VideoPlayer::UnloadFrame(int n)
 	if (LoadedFrames[n])
 	{
 		Frame[n].Delete();
-		FramesCount--;
 		LoadedFrames[n] = false;
 	}
 	return 0;
@@ -241,6 +226,7 @@ int VideoPlayer::VideoPlay()
 	else if(!Thread1)
 		LoadFramesDoubleThread(0);
 	Playing = true;
+	sp.SoundPlay(0);
 	return 0;
 }
 
@@ -274,6 +260,7 @@ int VideoPlayer::VideoPlayFrom(int ms)
 	else if (!Thread1)
 		LoadFramesDoubleThread(frame);
 	Playing = true;
+	sp.SoundPlay(ms);
 	return 0;
 }
 
@@ -287,6 +274,7 @@ int VideoPlayer::VideoPause()
 	SetPauseTime();
 	Playing = false;
 	Paused = true;
+	sp.SoundPause();
 	return 0;
 }
 
@@ -300,6 +288,7 @@ int VideoPlayer::VideoResume()
 	StartTime = GetTime() - PauseTime + StartTime;
 	Playing = true;
 	Paused = false;
+	sp.SoundResume();
 	return 0;
 }
 
@@ -311,12 +300,10 @@ int VideoPlayer::VideoStop()
 	Playing = false;
 	SetStartTime();
 	SetPauseTime();
-	std::cout << "Framecnt--------" << FramesCount << std::endl;
 	UnloadAllFrames();
-	std::cout << "Framecnt--------" << FramesCount << std::endl;
 	LoadFramesDoubleThread(0);
-	while (!FramesCount);
 	NowPlaying = 0;
+	sp.SoundStop();
 	return 0;
 }
 
@@ -348,7 +335,6 @@ int VideoPlayer::UnloadAllFrames()
 		{
 			UnloadFrame(i);
 			LoadedFrames[i] = false;
-			FramesCount--;
 		}
 	return 0;
 }

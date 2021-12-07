@@ -13,7 +13,6 @@
 
 // Include class files
 #include "Image.h"
-#include "Sound.h"
 #include "Video.h"
 #include <iostream>
 #include "Windows.h"
@@ -90,10 +89,10 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	sscanf(lpCmdLine, "%s %s %s %s", &FramePath1, &SoundPath1, &FramePath2, &SoundPath2);
 
 	//setting sound path
-	sp1.SetPath(SoundPath1);
-	sp2.SetPath(SoundPath2);
-	sp1.Setup();
-	sp2.Setup();
+	vp1.sp.SetPath(SoundPath1);
+	vp2.sp.SetPath(SoundPath2);
+	//sp1.Setup();
+	//sp2.Setup();
 	vp1.SetPath(FramePath1);
 	vp2.SetPath(FramePath2);
 	vp1.Setup();
@@ -250,44 +249,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					if (vp1.IsPlaying())
 					{
 						vp1.VideoPause();
-						sp1.SoundPause();
+						//sp1.SoundPause();
 					}
 					else if(vp1.IsPaused())
 					{
 						vp1.VideoResume();
-						sp1.SoundResume();
+						//sp1.SoundResume();
 					}
 					if (vp2.IsPlaying())
 					{
 						vp2.VideoPause();
-						sp2.SoundPause();
+						//sp2.SoundPause();
 					}
 					else if (vp2.IsPaused())
 					{
 						vp2.VideoResume();
-						sp2.SoundResume();
+						//sp2.SoundResume();
 					}
 					break;
 				case ID_READ_RIGHT_VIDEO:
 					if (vp1.IsPlaying() || vp1.IsPaused())
 					{
 						vp1.VideoStop();
-						sp1.SoundStop();
+						//sp1.SoundStop();
 					}
 					else
 					{
 						vp1.VideoPlayFrom(60000);
-						sp1.SoundPlay(60000);
+						//sp1.SoundPlay(60000);
 					}
 					if (vp2.IsPlaying() || vp2.IsPaused())
 					{
 						vp2.VideoStop();
-						sp2.SoundStop();
+						//sp2.SoundStop();
 					}
 					else
 					{
 						vp2.VideoPlayFrom(60000);
-						sp2.SoundPlay(60000);
+						//sp2.SoundPlay(60000);
 					}
 					break; 
 				case ID_MODIFY_IMAGE:
