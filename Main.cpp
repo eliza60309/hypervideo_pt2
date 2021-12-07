@@ -316,55 +316,96 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				case IDM_ABOUT:
 				   DialogBox(hInst, (LPCTSTR)IDD_ABOUTBOX, hWnd, (DLGPROC)About);
 				   break;
-				case ID_READ_LEFT_VIDEO:
-					//openFile(hWnd);
-					if (vp1.IsPlaying())
-					{
-						vp1.VideoPause();
-						sp1.SoundPause();
-					}
-					else if(vp1.IsPaused())
-					{
-						vp1.VideoResume();
-						sp1.SoundResume();
-					}
-					if (vp2.IsPlaying())
-					{
-						vp2.VideoPause();
-						sp2.SoundPause();
-					}
-					else if (vp2.IsPaused())
-					{
-						vp2.VideoResume();
-						sp2.SoundResume();
-					}
-					break;
-				case ID_READ_RIGHT_VIDEO:
-					if (vp1.IsPlaying() || vp1.IsPaused())
-					{
-						vp1.VideoStop();
-						sp1.SoundStop();
-					}
-					else
-					{
-						vp1.VideoPlay();
+
+                case ID_BUTTONLPLAY:
+                    if (!vp1.IsPlaying() && !vp1.IsPaused()){
+                        vp1.VideoPlay();
 						sp1.SoundPlay();
-					}
-					if (vp2.IsPlaying() || vp2.IsPaused())
-					{
-						vp2.VideoStop();
-						sp2.SoundStop();
-					}
-					else
-					{
-						vp2.VideoPlay();
-						sp2.SoundPlay();
-					}
-					break;
+                    }
+                    else if(vp1.IsPaused()){
+                        vp1.VideoResume();
+                        sp1.SoundResume();
+                    }
+           			break;
+           		case ID_BUTTONLPAUSE:
+                    vp1.VideoPause();
+                    sp1.SoundPause();
+           			InvalidateRect(hWnd, &rt, false);
+           			break;
+           		case ID_BUTTONLSTOP:
+                    vp1.VideoStop();
+                    sp1.SoundStop();
+               		break;
+                case ID_BUTTONRPLAY:
+                    if (!vp2.IsPlaying() && !vp2.IsPaused()){
+                        vp2.VideoPlay();
+                        sp2.SoundPlay();
+                    }
+                    else if(vp2.IsPaused()){
+                        vp2.VideoResume();
+                        sp2.SoundResume();
+                    }
+           			break;
+           		case ID_BUTTONRPAUSE:
+                    vp2.VideoPause();
+                    sp2.SoundPause();
+           			InvalidateRect(hWnd, &rt, false);
+           			break;
+           		case ID_BUTTONRSTOP:
+                    vp2.VideoStop();
+                    sp2.SoundStop();
+           			break;
+
+				// case ID_READ_LEFT_VIDEO:
+				// 	//openFile(hWnd);
+				// 	if (vp1.IsPlaying())
+				// 	{
+				// 		vp1.VideoPause();
+				// 		sp1.SoundPause();
+				// 	}
+                //     else if(vp1.IsPaused())
+				// 	{
+				// 		vp1.VideoResume();
+				// 		sp1.SoundResume();
+				// 	}
+                //
+				// 	if (vp2.IsPlaying())
+				// 	{
+				// 		vp2.VideoPause();
+				// 		sp2.SoundPause();
+				// 	}
+				// 	else if (vp2.IsPaused())
+				// 	{
+				// 		vp2.VideoResume();
+				// 		sp2.SoundResume();
+				// 	}
+				// 	break;
+				// case ID_READ_RIGHT_VIDEO:
+				// 	if (vp1.IsPlaying() || vp1.IsPaused())
+				// 	{
+				// 		vp1.VideoStop();
+				// 		sp1.SoundStop();
+				// 	}
+				// 	else
+				// 	{
+				// 		vp1.VideoPlay();
+				// 		sp1.SoundPlay();
+				// 	}
+				// 	if (vp2.IsPlaying() || vp2.IsPaused())
+				// 	{
+				// 		vp2.VideoStop();
+				// 		sp2.SoundStop();
+				// 	}
+				// 	else
+				// 	{
+				// 		vp2.VideoPlay();
+				// 		sp2.SoundPlay();
+				// 	}
+				// 	break;
 				case ID_MODIFY_IMAGE:
-				   /*PlaySound(TEXT(SoundPath1), NULL, SND_ASYNC);			// New addition to the code to play a wav file
+				   PlaySound(TEXT(SoundPath1), NULL, SND_ASYNC);			// New addition to the code to play a wav file
 				   outImage.Modify();
-				   InvalidateRect(hWnd, &rt, false); */
+				   InvalidateRect(hWnd, &rt, false);
 				   break;
 				case IDM_EXIT:
 				   DestroyWindow(hWnd);
