@@ -54,61 +54,6 @@ LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
 using namespace std;
-/*
-DWORD WINAPI loadframe1(void* data) {
-	for (int i = BUFFER; i < FRAMES; i += 2)
-	{
-		while (LeftPlayingFrame + BUFFER < i)
-			Sleep(10);
-		if (vid1[i].ReadImage())
-			loadedframe1[i] = true;
-		else
-			AfxMessageBox("Could not read image");
-	}
-	return 0;
-}
-
-DWORD WINAPI loadframe2(void* data) {
-	int paused = false;
-	for (int i = BUFFER + 1; i < FRAMES; i += 2)
-	{
-		while (LeftPlayingFrame + BUFFER < i)
-			Sleep(10);
-		if (vid1[i].ReadImage())
-			loadedframe1[i] = true;
-		else
-			AfxMessageBox("Could not read image");
-	}
-	return 0;
-}
-
-DWORD WINAPI loadframe3(void* data) {
-	for (int i = BUFFER; i < FRAMES; i += 2)
-	{
-		while (LeftPlayingFrame + BUFFER < i)
-			Sleep(10);
-		if (vid2[i].ReadImage())
-			loadedframe2[i] = true;
-		else
-			AfxMessageBox("Could not read image");
-	}
-	return 0;
-}
-
-DWORD WINAPI loadframe4(void* data) {
-	int paused = false;
-	for (int i = BUFFER + 1; i < FRAMES; i += 2)
-	{
-		while (LeftPlayingFrame + BUFFER < i)
-			Sleep(10);
-		if (vid2[i].ReadImage())
-			loadedframe2[i] = true;
-		else
-			AfxMessageBox("Could not read image");
-	}
-	return 0;
-}
-*/
 
 // Main entry point for a windows application
 int APIENTRY WinMain(HINSTANCE hInstance,
@@ -153,8 +98,8 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	vp2.SetPath(FramePath2);
 	vp1.Setup();
 	vp2.Setup();
-	//vp1.LoadFramesDoubleThread(BUFFER);
-	//vp2.LoadFramesDoubleThread(BUFFER);
+	vp1.LoadFramesDoubleThread(BUFFER);
+	vp2.LoadFramesDoubleThread(BUFFER);
 
 	// Initialize global strings
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -331,8 +276,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 					else
 					{
-						vp1.VideoPlay();
-						sp1.SoundPlay();
+						vp1.VideoPlayFrom(60000);
+						sp1.SoundPlay(60000);
 					}
 					if (vp2.IsPlaying() || vp2.IsPaused())
 					{
@@ -341,8 +286,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 					else
 					{
-						vp2.VideoPlay();
-						sp2.SoundPlay();
+						vp2.VideoPlayFrom(60000);
+						sp2.SoundPlay(60000);
 					}
 					break; 
 				case ID_MODIFY_IMAGE:
@@ -368,8 +313,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					
 					vp1.VideoPlay();
 					vp2.VideoPlay();
-					sp1.SoundPlay();
-					sp2.SoundPlay();
+					sp1.SoundPlay(0);
+					sp2.SoundPlay(0);
 					//PlaySound(TEXT(SoundPath), NULL, SND_ASYNC);
 
 				}

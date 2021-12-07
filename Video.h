@@ -46,6 +46,7 @@ class VideoPlayer
 	int Setup();
 	int Buffer(int);
 	int UnloadFrame(int);
+	int UnloadAllFrames();
 	int SetStartTime();
 	int SetPauseTime();
 	int IsPlaying();
@@ -59,6 +60,7 @@ class VideoPlayer
 	long long int GetTime();
 
 	int VideoPlay();
+	int VideoPlayFrom(int);
 	int VideoPause();
 	int VideoResume();
 	int VideoStop();

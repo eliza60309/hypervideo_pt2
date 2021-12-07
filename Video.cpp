@@ -33,7 +33,7 @@ int VideoPlayer::Setup()
 		std::string imgpath = std::string(VideoPath) + ss.str() + std::string(".rgb");
 		Frame[i - 1].setImagePath(imgpath.c_str());
 		FrameTime[i - 1] = (1000 * (i - 1)) / 30;
-		//LoadedFrames[i - 1] = false;
+		LoadedFrames[i - 1] = false;
 	}
 	Buffer(0);
 	return 0;
@@ -43,6 +43,8 @@ int VideoPlayer::Buffer(int start)
 {
 	for (int i = 0; i < BUFFER; i++)
 	{
+		if (LoadedFrames[i])
+			continue;
 		if (Frame[i].ReadImage())
 		{
 			LoadedFrames[i] = true;
@@ -69,6 +71,8 @@ DWORD WINAPI loadframe(void* data) {
 		}
 		while (vp->NowPlaying + BUFFER < i)
 			Sleep(10);
+		if (vp->LoadedFrames[i])
+			continue;
 		if (vp->Frame[i].ReadImage())
 		{
 			vp->LoadedFrames[i] = true;
@@ -77,6 +81,7 @@ DWORD WINAPI loadframe(void* data) {
 		else
 			AfxMessageBox("Could not read image");
 	}
+
 	return 0;
 }
 
@@ -101,15 +106,18 @@ DWORD WINAPI loadframe1(void* data) {
 			}
 			Sleep(10);
 		}
+		if (vp->LoadedFrames[i])
+			continue;
 		if (vp->Frame[i].ReadImage())
 		{
 			vp->LoadedFrames[i] = true;
 			vp->FramesCount++;
+			std::cout << "Loaded " << i << std::endl;
 		}
 		else
 			AfxMessageBox("Could not read image");
 	}
-	std::cout << "Ended" << std::endl;
+	std::cout << "Thread Ended" << std::endl;
 	return 0;
 }
 
@@ -121,6 +129,7 @@ DWORD WINAPI loadframe2(void* data) {
 		{
 			vp->KillThread2 = false;
 			vp->Thread2 = NULL;
+			return 0;
 		}
 		//std::cout << "T2" << std::endl;
 		while (vp->NowPlaying + BUFFER < i)
@@ -129,17 +138,22 @@ DWORD WINAPI loadframe2(void* data) {
 			{
 				vp->KillThread2 = false;
 				vp->Thread2 = NULL;
+				return 0;
 			}
 			Sleep(10);
 		}
+		if (vp->LoadedFrames[i])
+			continue;
 		if (vp->Frame[i].ReadImage())
 		{
 			vp->LoadedFrames[i] = true;
 			vp->FramesCount++;
+			std::cout << "Loaded " << i << std::endl;
 		}
 		else
 			AfxMessageBox("Could not read image");
 	}
+	std::cout << "Thread Ended" << std::endl;
 	return 0;
 }
 
@@ -187,13 +201,13 @@ MyImage* VideoPlayer::GetFrame()
 	if (Playing)
 	{
 		long long int TimeElapsed = GetTime() - StartTime;
-		bool increment = false;
 		while (NowPlaying < FRAMES && TimeElapsed >= FrameTime[NowPlaying + 1])
 		{
 			UnloadFrame(NowPlaying);
 			NowPlaying++;
 		}
 	}
+
 	return &Frame[NowPlaying];
 }
 
@@ -211,6 +225,16 @@ int VideoPlayer::UnloadFrame(int n)
 
 int VideoPlayer::VideoPlay()
 {
+	if (Playing)
+	{
+		AfxMessageBox("Already Playing");
+		return 0;
+	}
+	if (Paused)
+	{
+		AfxMessageBox("Please Use Resume");
+		return 0;
+	}
 	SetStartTime();
 	if(PreBuffered && !Thread1)
 		LoadFramesDoubleThread(BUFFER);
@@ -220,8 +244,46 @@ int VideoPlayer::VideoPlay()
 	return 0;
 }
 
+int VideoPlayer::VideoPlayFrom(int ms)
+{
+	if (Playing)
+	{
+		AfxMessageBox("Already Playing");
+		return 0;
+	}
+	if (Paused)
+	{
+		AfxMessageBox("Please Use Resume");
+		return 0;
+	}
+	SetStartTime();
+	StartTime -= ms;
+	int frame = 0;
+	for (int i = 0; i < FRAMES; i++)
+	{
+		if (GetTime() - StartTime <= FrameTime[i])
+		{
+			frame = i;
+			break;
+		}
+	}
+	KillThreads();
+	UnloadAllFrames();
+	if (PreBuffered && !Thread1)
+		LoadFramesDoubleThread(BUFFER + frame);
+	else if (!Thread1)
+		LoadFramesDoubleThread(frame);
+	Playing = true;
+	return 0;
+}
+
 int VideoPlayer::VideoPause()
 {
+	if (Paused)
+	{
+		AfxMessageBox("Already Paused");
+		return 0;
+	}
 	SetPauseTime();
 	Playing = false;
 	Paused = true;
@@ -230,8 +292,11 @@ int VideoPlayer::VideoPause()
 
 int VideoPlayer::VideoResume()
 {
-	if (!Playing)
+	if (!Paused)
+	{
+		AfxMessageBox("Not Paused");
 		return 0;
+	}
 	StartTime = GetTime() - PauseTime + StartTime;
 	Playing = true;
 	Paused = false;
@@ -240,13 +305,15 @@ int VideoPlayer::VideoResume()
 
 int VideoPlayer::VideoStop()
 {
+	if (Paused)
+		VideoResume();
 	KillThreads();
 	Playing = false;
-	Paused = false;
-	//for (int i = 0; i < FRAMES; i++)
-	//	UnloadFrame(i);
 	SetStartTime();
 	SetPauseTime();
+	std::cout << "Framecnt--------" << FramesCount << std::endl;
+	UnloadAllFrames();
+	std::cout << "Framecnt--------" << FramesCount << std::endl;
 	LoadFramesDoubleThread(0);
 	while (!FramesCount);
 	NowPlaying = 0;
@@ -272,4 +339,16 @@ int VideoPlayer::IsPlaying()
 int VideoPlayer::IsPaused()
 {
 	return Paused;
+}
+
+int VideoPlayer::UnloadAllFrames()
+{
+	for (int i = 0; i < FRAMES; i++)
+		if (LoadedFrames[i])
+		{
+			UnloadFrame(i);
+			LoadedFrames[i] = false;
+			FramesCount--;
+		}
+	return 0;
 }
