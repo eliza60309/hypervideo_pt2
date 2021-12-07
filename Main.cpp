@@ -403,9 +403,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				// 	}
 				// 	break;
 				case ID_MODIFY_IMAGE:
-				   PlaySound(TEXT(SoundPath1), NULL, SND_ASYNC);			// New addition to the code to play a wav file
-				   outImage.Modify();
-				   InvalidateRect(hWnd, &rt, false);
+				   // PlaySound(TEXT(SoundPath1), NULL, SND_ASYNC);			// New addition to the code to play a wav file
+				   // outImage.Modify();
+				   // InvalidateRect(hWnd, &rt, false);
 				   break;
 				case IDM_EXIT:
 				   DestroyWindow(hWnd);
