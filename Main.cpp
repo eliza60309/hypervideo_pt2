@@ -282,16 +282,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case WM_CREATE:
     		CreateWindow(TEXT("button"), TEXT("Play"),
     					 WS_VISIBLE | WS_CHILD,
-    					 10, 60, 150, 25,
-    					 hWnd, (HMENU)ID_BUTTONPLAY, NULL, NULL);
+    					 10, 60, 50, 25,
+    					 hWnd, (HMENU)ID_BUTTONLPLAY, NULL, NULL);
     		CreateWindow(TEXT("button"), TEXT("Pause"),
     					 WS_VISIBLE | WS_CHILD,
-    					 180, 60, 150, 25,
-    					 hWnd, (HMENU)ID_BUTTONPAUSE, NULL, NULL);
+    					 80, 60, 50, 25,
+    					 hWnd, (HMENU)ID_BUTTONLPAUSE, NULL, NULL);
     		CreateWindow(TEXT("button"), TEXT("Stop"),
     					 WS_VISIBLE | WS_CHILD,
-    					 350, 60, 150, 25,
-    					 hWnd, (HMENU)ID_BUTTONSTOP, NULL, NULL);
+    					 150, 60, 50, 25,
+    					 hWnd, (HMENU)ID_BUTTONLSTOP, NULL, NULL);
+
+            CreateWindow(TEXT("button"), TEXT("Play"),
+     					 WS_VISIBLE | WS_CHILD,
+     					 220, 60, 50, 25,
+     					 hWnd, (HMENU)ID_BUTTONRPLAY, NULL, NULL);
+     		CreateWindow(TEXT("button"), TEXT("Pause"),
+     					 WS_VISIBLE | WS_CHILD,
+     					 290, 60, 50, 25,
+     					 hWnd, (HMENU)ID_BUTTONRPAUSE, NULL, NULL);
+     		CreateWindow(TEXT("button"), TEXT("Stop"),
+     					 WS_VISIBLE | WS_CHILD,
+     					 360, 60, 50, 25,
+     					 hWnd, (HMENU)ID_BUTTONRSTOP, NULL, NULL);
 
     		break;
 		case WM_COMMAND:

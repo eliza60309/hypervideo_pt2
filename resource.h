@@ -19,9 +19,12 @@
 #define ID_READ_LEFT_VIDEO			32773
 #define ID_READ_RIGHT_VIDEO			32774
 
-#define ID_BUTTONPLAY 5
-#define ID_BUTTONPAUSE 6
-#define ID_BUTTONSTOP 7
+#define ID_BUTTONLPLAY 5
+#define ID_BUTTONLPAUSE 6
+#define ID_BUTTONLSTOP 7
+#define ID_BUTTONRPLAY  8
+#define ID_BUTTONRPAUSE 9
+#define ID_BUTTONRSTOP 10
 
 // Next default values for new objects
 //
