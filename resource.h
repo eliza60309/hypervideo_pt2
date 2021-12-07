@@ -19,8 +19,12 @@
 #define ID_READ_LEFT_VIDEO			32773
 #define ID_READ_RIGHT_VIDEO			32774
 
+#define ID_BUTTONPLAY 5
+#define ID_BUTTONPAUSE 6
+#define ID_BUTTONSTOP 7
+
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        129

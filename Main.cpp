@@ -129,19 +129,6 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	char FramePath1[_MAX_PATH] = {};
 	char FramePath2[_MAX_PATH] = {};
 
-	//sscanf(lpCmdLine, "%s %d %d %s", &ImagePath, &w, &h, &SoundPath);
-	
-
-	//command line args: Image.exe ImagePath SoundPath
-	//For the image path, don't add the number(0000/0001/...) and .rgb
-	//Ex. AIFilmOne0000.rgb (x), AIFilmOne (o)
-
-	//Ex. Image.exe AIFilmOne\AIFilmOne AIFilmOne\AIFilmOne.wav
-	
-	//load one video
-	//sscanf(lpCmdLine, "%s %s", &FramePath1, &SoundPath1);
-
-	//load two videos
 	sscanf(lpCmdLine, "%s %s %s %s", &FramePath1, &SoundPath1, &FramePath2, &SoundPath2);
 
 	//setting sound path
@@ -162,7 +149,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	MyRegisterClass(hInstance);
 
 	// Perform application initialization:
-	if (!InitInstance (hInstance, nCmdShow)) 
+	if (!InitInstance (hInstance, nCmdShow))
 	{
 		return FALSE;
 	}
@@ -170,9 +157,9 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	hAccelTable = LoadAccelerators(hInstance, (LPCTSTR)IDC_IMAGE);
 
 	// Main message loop:
-	while (GetMessage(&msg, NULL, 0, 0)) 
+	while (GetMessage(&msg, NULL, 0, 0))
 	{
-		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) 
+		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -200,7 +187,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 {
 	WNDCLASSEX wcex;
 
-	wcex.cbSize = sizeof(WNDCLASSEX); 
+	wcex.cbSize = sizeof(WNDCLASSEX);
 
 	wcex.style			= CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc	= (WNDPROC)WndProc;
@@ -241,7 +228,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    {
       return FALSE;
    }
-   
+
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
 
@@ -277,7 +264,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	RECT rt;
 	GetClientRect(hWnd, &rt);
 
-	switch (message) 
+	switch (message)
 	{
 		case WM_TIMER:
 			switch (wParam)
@@ -291,9 +278,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 			break;
+
+        case WM_CREATE:
+    		CreateWindow(TEXT("button"), TEXT("Play"),
+    					 WS_VISIBLE | WS_CHILD,
+    					 10, 60, 150, 25,
+    					 hWnd, (HMENU)ID_BUTTONPLAY, NULL, NULL);
+    		CreateWindow(TEXT("button"), TEXT("Pause"),
+    					 WS_VISIBLE | WS_CHILD,
+    					 180, 60, 150, 25,
+    					 hWnd, (HMENU)ID_BUTTONPAUSE, NULL, NULL);
+    		CreateWindow(TEXT("button"), TEXT("Stop"),
+    					 WS_VISIBLE | WS_CHILD,
+    					 350, 60, 150, 25,
+    					 hWnd, (HMENU)ID_BUTTONSTOP, NULL, NULL);
+
+    		break;
 		case WM_COMMAND:
-			wmId    = LOWORD(wParam); 
-			wmEvent = HIWORD(wParam); 
+			wmId    = LOWORD(wParam);
+			wmEvent = HIWORD(wParam);
 			// Parse the menu selections:
 			switch (wmId)
 			{
@@ -344,7 +347,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						vp2.VideoPlay();
 						sp2.SoundPlay();
 					}
-					break; 
+					break;
 				case ID_MODIFY_IMAGE:
 				   /*PlaySound(TEXT(SoundPath1), NULL, SND_ASYNC);			// New addition to the code to play a wav file
 				   outImage.Modify();
@@ -359,13 +362,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case WM_PAINT:
 			{
-				
+
 				if (!start)
 				{
-					
+
 					start = true;
 					SetTimer(hWnd, IDT_TIMER_1, 5, (TIMERPROC)NULL);
-					
+
 					vp1.VideoPlay();
 					vp2.VideoPlay();
 					sp1.SoundPlay();
@@ -378,7 +381,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				//char text[1000];
 				//strcpy(text, inImage[frame].getImagePath());
 				//DrawText(hdc, text, strlen(text), &rt, DT_LEFT);
-				
+
 				leftImg = vp1.GetFrame();
 				rightImg = vp2.GetFrame();
 				BITMAPINFO bmi;
@@ -423,7 +426,7 @@ LRESULT CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				return TRUE;
 
 		case WM_COMMAND:
-			if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL) 
+			if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
 			{
 				EndDialog(hDlg, LOWORD(wParam));
 				return TRUE;
