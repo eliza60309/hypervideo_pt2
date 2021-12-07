@@ -15,15 +15,19 @@ class SoundPlayer
 	std::string SoundPauseCmd;
 	std::string SoundResumeCmd;
 	std::string SoundStopCmd;
+	std::string SoundOpenCmd;
+	std::string SoundCloseCmd;
 
 	public:
 	SoundPlayer();
 	int SetPath(char *);
 	int Setup();
-	int SoundPlay();
+	int SoundPlay(int);
 	int SoundPause();
 	int SoundResume();
 	int SoundStop();
+	int SoundClose();
+	int SoundOpen();
 
 };
 #endif
