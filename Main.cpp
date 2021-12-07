@@ -319,10 +319,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                 case ID_BUTTONLPLAY:
                     if (!vp1.IsPlaying() && !vp1.IsPaused()){
+                        cout<<"Play"<<endl;
                         vp1.VideoPlay();
 						sp1.SoundPlay();
                     }
                     else if(vp1.IsPaused()){
+                        cout<<"Resume"<<endl;
                         vp1.VideoResume();
                         sp1.SoundResume();
                     }
@@ -338,10 +340,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                		break;
                 case ID_BUTTONRPLAY:
                     if (!vp2.IsPlaying() && !vp2.IsPaused()){
+                        cout<<"Play"<<endl;
                         vp2.VideoPlay();
                         sp2.SoundPlay();
                     }
                     else if(vp2.IsPaused()){
+                        cout<<"Resume"<<endl;
                         vp2.VideoResume();
                         sp2.SoundResume();
                     }
