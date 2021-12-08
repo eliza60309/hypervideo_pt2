@@ -125,9 +125,10 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 			val_tmp_vec.push_back(stoi(s));
 			//cout << stoi(s) << endl;
 		}
-		// for (auto i: val_tmp_vec){
-		// 		cout << i << ' ';
-		// }
+		cout<<"key:"<<key<<endl;
+		for (auto i: val_tmp_vec){
+				cout << i << ' ';
+		}
 
 		hyperlink_map[key].push_back(val_tmp_vec);
 	}
@@ -308,7 +309,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (!vp1.IsPlaying() && !vp1.IsPaused()) {
 				cout << "Play" << endl;
 				vp1.VideoPlay();
-				sp1.SoundPlay();
+				sp1.SoundPlay(0);
 			}
 			else if (vp1.IsPaused()) {
 				cout << "Resume" << endl;
@@ -329,7 +330,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (!vp2.IsPlaying() && !vp2.IsPaused()) {
 				cout << "Play" << endl;
 				vp2.VideoPlay();
-				sp2.SoundPlay();
+				sp2.SoundPlay(0);
 			}
 			else if (vp2.IsPaused()) {
 				cout << "Resume" << endl;
@@ -384,7 +385,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		leftImg = vp1.GetFrame();
 		rightImg = vp2.GetFrame();
 		cout<<"current frame:"<<vp1.NowPlaying<<endl;
+
+		//check need to draw rectangle or not
 		if (hyperlink_map.count(vp1.NowPlaying)==1){
+			cout<<"add frame:"<<vp1.NowPlaying<<endl;
 			current_hyper_frame_deque.push_back(vp1.NowPlaying);
 		}
 
@@ -399,11 +403,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 
 		}
+		//draw to-draw rectangle
 		if (!current_hyper_frame_deque.empty()){
 			for (int n=0;n<current_hyper_frame_deque.size();n++){
 				for (int i = 0; i < hyperlink_map[current_hyper_frame_deque[n]].size(); i++) {
-					// cout<<"hyper frame:"<<current_hyper_frame_deque[n]<<endl;
-					// cout<<"drawing rec size:"<<hyperlink_map[current_hyper_frame_deque[n]].size()<<endl;
+					cout<<"hyper frame:"<<current_hyper_frame_deque[n]<<endl;
+					cout<<"drawing rec size:"<<hyperlink_map[current_hyper_frame_deque[n]].size()<<endl;
 					leftImg->TargetArea(hyperlink_map[current_hyper_frame_deque[n]][i][1], hyperlink_map[current_hyper_frame_deque[n]][i][2], hyperlink_map[current_hyper_frame_deque[n]][i][3], hyperlink_map[current_hyper_frame_deque[n]][i][4], boxB, boxG, boxR);
 
 				}
