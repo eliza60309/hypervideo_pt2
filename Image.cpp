@@ -8,7 +8,6 @@
 //*****************************************************************************
 
 #include "Image.h"
-
 // Constructor and Desctructors
 MyImage::MyImage() {
 	Data = NULL;
@@ -65,6 +64,43 @@ MyImage& MyImage::operator= (const MyImage& otherImage) {
 
 // MyImage::ReadImage
 // Function to read the image given a path
+bool MyImage::TargetArea(int x1, int y1, int x2, int y2, int b, int g, int r) {
+	// if (x1 > x2)
+	// 	std::swap(x1, x2);
+	// if (y1 > y2)
+	// 	std::swap(y1, y2);
+	for (int i = x1; i <= x2; i++) {
+		for (int j = -2; j < 3; j++) {
+			if (y1 + j >= 0 && y1 + j < Height) {
+				Data[4 * ((y1 + j) * Width + i)] = b;
+				Data[4 * ((y1 + j) * Width + i) + 1] = g;
+				Data[4 * ((y1 + j) * Width + i) + 2] = r;
+			}
+			if (y2 + j >= 0 && y2 + j < Height) {
+				Data[4 * ((y2 + j) * Width + i)] = b;
+				Data[4 * ((y2 + j) * Width + i) + 1] = g;
+				Data[4 * ((y2 + j) * Width + i) + 2] = r;
+			}
+		}
+	}
+
+	for (int i = y1; i <= y2; i++) {
+		for (int j = -2; j < 3; j++) {
+			if (x1 + j >= 0 && x1 + j < Width) {
+				Data[4 * (i * Width + x1 + j)] = b;
+				Data[4 * (i * Width + x1 + j) + 1] = g;
+				Data[4 * (i * Width + x1 + j) + 2] = r;
+			}
+			if (x2 + j >= 0 && x2 + j < Width) {
+				Data[4 * (i * Width + x2 + j)] = b;
+				Data[4 * (i * Width + x2 + j) + 1] = g;
+				Data[4 * (i * Width + x2 + j) + 2] = r;
+			}
+		}
+	}
+
+	return false;
+}
 bool MyImage::ReadImage() {
 
 	// Verify ImagePath

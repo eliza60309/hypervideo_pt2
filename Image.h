@@ -3,7 +3,7 @@
 // Image.h : Defines the class operations on images
 //
 // Author - Parag Havaldar
-// Main Image class structure 
+// Main Image class structure
 //
 //*****************************************************************************
 
@@ -25,9 +25,9 @@
 #include <tchar.h>
 
 
-// Class structure of Image 
+// Class structure of Image
 // Use to encapsulate an RGB image
-class MyImage 
+class MyImage
 {
 
 private:
@@ -48,15 +48,15 @@ public:
 	MyImage & operator= (const MyImage & otherImage);
 
 	// Reader & Writer functions
-	void	setWidth( const int w)  { Width = w; }; 
-	void	setHeight(const int h) { Height = h; }; 
+	void	setWidth( const int w)  { Width = w; };
+	void	setHeight(const int h) { Height = h; };
 	void	setImageData( const char *img ) { Data = (char *)img; };
 	void	setImagePath( const char *path) { strcpy(ImagePath, path); }
 	int		getWidth() { return Width; };
 	int		getHeight() { return Height; };
 	char*	getImageData() { return Data; };
 	char*	getImagePath() { return ImagePath; }
-	
+ 	bool TargetArea(int x1, int y1, int x2, int y2, int b, int g, int r);
 
 	// Input Output operations
 	bool	ReadImage();
