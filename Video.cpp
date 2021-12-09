@@ -242,12 +242,11 @@ int VideoPlayer::VideoPlayFrom(int ms)
 		AfxMessageBox("Please Use Resume");
 		return 0;
 	}
-	SetStartTime();
-	StartTime -= ms;
+
 	int frame = 0;
 	for (int i = 0; i < FRAMES; i++)
 	{
-		if (GetTime() - StartTime <= FrameTime[i])
+		if (ms <= FrameTime[i])
 		{
 			frame = i;
 			break;
@@ -255,10 +254,10 @@ int VideoPlayer::VideoPlayFrom(int ms)
 	}
 	KillThreads();
 	UnloadAllFrames();
-	if (PreBuffered && !Thread1)
-		LoadFramesDoubleThread(BUFFER + frame);
-	else if (!Thread1)
-		LoadFramesDoubleThread(frame);
+	Buffer(frame);
+	LoadFramesDoubleThread(BUFFER + frame);
+	SetStartTime();
+	StartTime -= ms;
 	Playing = true;
 	sp.SoundPlay(ms);
 	return 0;
