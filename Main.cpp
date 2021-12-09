@@ -418,10 +418,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 							vp2.VideoStop();
 							sp2.SoundStop();
 							// cout<<"frame:"<<hyperlink_map[current_hyper_frame_deque[n]][i][0]]<<endl;
-							cout<<"ms:"<<vp2.FrameTime[hyperlink_map[current_hyper_frame_deque[n]][i][0]]<<endl;
+							// cout<<"ms:"<<vp2.FrameTime[hyperlink_map[current_hyper_frame_deque[n]][i][0]]<<endl;
 							vp2.VideoPlayFrom(vp2.FrameTime[hyperlink_map[current_hyper_frame_deque[n]][i][0]]);
 							// vp2.VideoPlayFrom(5000);
-							// sp2.SoundPlay(vp2.FrameTime[hyperlink_map[current_hyper_frame_deque[n]][i][0]]);
+							sp2.SoundPlay(vp2.FrameTime[hyperlink_map[current_hyper_frame_deque[n]][i][0]]);
 						//
 					}
 					}
@@ -483,6 +483,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				for (int i = 0; i < hyperlink_map[current_hyper_frame_deque[n]].size(); i++) {
 					// cout<<"hyper frame:"<<current_hyper_frame_deque[n]<<endl;
 					// cout<<"drawing rec size:"<<hyperlink_map[current_hyper_frame_deque[n]].size()<<endl;
+					// cout<<"rectangle:"<<hyperlink_map[current_hyper_frame_deque[n]][i][1]<<" "<<hyperlink_map[current_hyper_frame_deque[n]][i][2]<<" "<<hyperlink_map[current_hyper_frame_deque[n]][i][3]<<" "<<hyperlink_map[current_hyper_frame_deque[n]][i][4]<<endl;
 					leftImg->TargetArea(hyperlink_map[current_hyper_frame_deque[n]][i][1], hyperlink_map[current_hyper_frame_deque[n]][i][2], hyperlink_map[current_hyper_frame_deque[n]][i][3], hyperlink_map[current_hyper_frame_deque[n]][i][4], boxB, boxG, boxR);
 
 				}
