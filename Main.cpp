@@ -275,7 +275,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 					else
 					{
-						vp1.VideoPlayFrom(60000);
+						vp1.VideoPlayFrom(2000);
 						//sp1.SoundPlay(60000);
 					}
 					if (vp2.IsPlaying() || vp2.IsPaused())
@@ -285,7 +285,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					}
 					else
 					{
-						vp2.VideoPlayFrom(60000);
+						vp2.VideoPlayFrom(2000);
 						//sp2.SoundPlay(60000);
 					}
 					break; 

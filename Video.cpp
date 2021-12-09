@@ -254,8 +254,8 @@ int VideoPlayer::VideoPlayFrom(int ms)
 	}
 	KillThreads();
 	UnloadAllFrames();
-	Buffer(frame);
-	LoadFramesDoubleThread(BUFFER + frame);
+	//Buffer(frame);
+	LoadFramesDoubleThread(frame);
 	SetStartTime();
 	StartTime -= ms;
 	Playing = true;
@@ -329,11 +329,14 @@ int VideoPlayer::IsPaused()
 
 int VideoPlayer::UnloadAllFrames()
 {
+	int cnt = 0;
 	for (int i = 0; i < FRAMES; i++)
 		if (LoadedFrames[i])
 		{
+			cnt++;
 			UnloadFrame(i);
 			LoadedFrames[i] = false;
 		}
+	std::cout << "unloaded" << cnt << std::endl;
 	return 0;
 }
