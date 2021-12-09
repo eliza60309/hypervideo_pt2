@@ -59,8 +59,16 @@ BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
-int boxB = rand() % 205 + 50, boxG = rand() % 205 + 50, boxR = rand() % 205 + 50;
+enum class LCLICKSTATUS { LDOWN = 1, LUP = 2 };
+LCLICKSTATUS lclickStatus = LCLICKSTATUS::LUP;
+enum class RCLICKSTATUS { RDOWN = 1, RUP = 2 };
+RCLICKSTATUS rclickStatus = RCLICKSTATUS::RUP;
 
+enum class LINKSTATUS { NORMAL = 1, LINKING = 2 };
+LINKSTATUS linkStatus = LINKSTATUS::NORMAL;
+
+int boxB = rand() % 205 + 50, boxG = rand() % 205 + 50, boxR = rand() % 205 + 50;
+int click_X=0,click_Y=0;
 
 int box_time=45;
 using namespace std;
@@ -125,7 +133,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 			val_tmp_vec.push_back(stoi(s));
 			//cout << stoi(s) << endl;
 		}
-		cout<<"key:"<<key<<endl;
+		// cout<<"key:"<<key<<endl;
 		for (auto i: val_tmp_vec){
 				cout << i << ' ';
 		}
@@ -236,6 +244,17 @@ void openFile(HWND hWnd) {
 //  WM_DESTROY	- post a quit message and return
 //
 //
+bool check_mouse_location(int x,int y,vector<int> rec	){
+	cout<<"rec:"<<rec[1]<<" "<<rec[3]<<" "<<rec[2]<<" "<<rec[4]<<endl;
+	if(x>=rec[1]&&x<=rec[3]&&y>=rec[2]&&y<=rec[4]){
+		return true;
+	}
+	else{
+		return false;
+	}
+
+
+}
 #define IDT_TIMER_1 1001
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -293,7 +312,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			WS_VISIBLE | WS_CHILD,
 			360, 60, 50, 25,
 			hWnd, (HMENU)ID_BUTTONRSTOP, NULL, NULL);
-
+		linkStatus = LINKSTATUS::LINKING;
 		break;
 	case WM_COMMAND:
 		wmId = LOWORD(wParam);
@@ -347,11 +366,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			vp2.VideoStop();
 			sp2.SoundStop();
 			break;
-		case WM_LBUTTONDOWN:
-			mousePositionX = GET_X_LPARAM(lParam);
-			mousePositionY = GET_Y_LPARAM(lParam);
 
-			break;
+
 		case ID_MODIFY_IMAGE:
 			// PlaySound(TEXT(SoundPath1), NULL, SND_ASYNC);			// New addition to the code to play a wav file
 			// outImage.Modify();
@@ -363,6 +379,58 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
+		break;
+	case WM_LBUTTONDOWN:
+
+		mousePositionX = GET_X_LPARAM(lParam);
+		mousePositionY = GET_Y_LPARAM(lParam);
+		if (linkStatus == LINKSTATUS::LINKING) {
+
+				lclickStatus = LCLICKSTATUS::LDOWN;
+
+		}
+
+		break;
+	case WM_LBUTTONUP:
+		// get final bounding box coordinates
+
+		mousePositionX = GET_X_LPARAM(lParam);
+		mousePositionY = GET_Y_LPARAM(lParam);
+		if (lclickStatus == LCLICKSTATUS::LDOWN) {
+			if (mousePositionX >= 0 && mousePositionX < 0 + leftImg->getWidth() &&
+				mousePositionY >= 100 && mousePositionY < 100 + leftImg->getHeight()) {		// click on left video
+				click_X = mousePositionX, click_Y = mousePositionY - 100;
+				lclickStatus = LCLICKSTATUS::LDOWN;
+				// cout<<"click_X:"<<click_X<<" click_Y:"<<click_Y<<endl;
+			}
+			if (!current_hyper_frame_deque.empty()){
+				// cout<<"size:"<<current_hyper_frame_deque.size()<<endl;
+				for (int n=0;n<current_hyper_frame_deque.size();n++){
+					for (int i = 0; i < hyperlink_map[current_hyper_frame_deque[n]].size(); i++) {
+						bool check=check_mouse_location(click_X,click_Y,hyperlink_map[current_hyper_frame_deque[n]][i]);
+						// cout<<"check:"<<check<<endl;
+						if (check){
+							cout<<"GO Hyper!!!"<<endl;
+							if (vp1.IsPlaying()){
+								vp1.VideoPause();
+								sp1.SoundPause();
+							}
+							vp2.VideoStop();
+							sp2.SoundStop();
+							vp2.VideoPlayFrom(hyperlink_map[current_hyper_frame_deque[n]][i][0]);
+							sp2.SoundPlay(hyperlink_map[current_hyper_frame_deque[n]][i][0]);
+						}
+
+					}
+				}
+
+			}
+		}
+
+
+
+
+		lclickStatus = LCLICKSTATUS::LUP;
 		break;
 	case WM_PAINT:
 	{
@@ -384,12 +452,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		leftImg = vp1.GetFrame();
 		rightImg = vp2.GetFrame();
-		cout<<"current frame:"<<vp1.NowPlaying<<endl;
+		// cout<<"current frame:"<<vp1.NowPlaying<<endl;
 
 		//check need to draw rectangle or not
-		if (hyperlink_map.count(vp1.NowPlaying)==1){
-			cout<<"add frame:"<<vp1.NowPlaying<<endl;
-			current_hyper_frame_deque.push_back(vp1.NowPlaying);
+		if (hyperlink_map.count(vp1.NowPlaying)==1 ){
+			// cout<<"add frame:"<<vp1.NowPlaying<<endl;
+			if ((!current_hyper_frame_deque.empty()&&current_hyper_frame_deque.back()!=vp1.NowPlaying)||current_hyper_frame_deque.empty()){
+				current_hyper_frame_deque.push_back(vp1.NowPlaying);
+			}
+
 		}
 
 		else{
@@ -407,8 +478,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (!current_hyper_frame_deque.empty()){
 			for (int n=0;n<current_hyper_frame_deque.size();n++){
 				for (int i = 0; i < hyperlink_map[current_hyper_frame_deque[n]].size(); i++) {
-					cout<<"hyper frame:"<<current_hyper_frame_deque[n]<<endl;
-					cout<<"drawing rec size:"<<hyperlink_map[current_hyper_frame_deque[n]].size()<<endl;
+					// cout<<"hyper frame:"<<current_hyper_frame_deque[n]<<endl;
+					// cout<<"drawing rec size:"<<hyperlink_map[current_hyper_frame_deque[n]].size()<<endl;
 					leftImg->TargetArea(hyperlink_map[current_hyper_frame_deque[n]][i][1], hyperlink_map[current_hyper_frame_deque[n]][i][2], hyperlink_map[current_hyper_frame_deque[n]][i][3], hyperlink_map[current_hyper_frame_deque[n]][i][4], boxB, boxG, boxR);
 
 				}
