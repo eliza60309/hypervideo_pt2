@@ -289,28 +289,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 		CreateWindow(TEXT("button"), TEXT("Play"),
 			WS_VISIBLE | WS_CHILD,
-			10, 60, 50, 25,
+			10, 60, 104, 25,
 			hWnd, (HMENU)ID_BUTTONLPLAY, NULL, NULL);
 		CreateWindow(TEXT("button"), TEXT("Pause"),
 			WS_VISIBLE | WS_CHILD,
-			80, 60, 50, 25,
+			124, 60, 104, 25,
 			hWnd, (HMENU)ID_BUTTONLPAUSE, NULL, NULL);
 		CreateWindow(TEXT("button"), TEXT("Stop"),
 			WS_VISIBLE | WS_CHILD,
-			150, 60, 50, 25,
+			238, 60, 104, 25,
 			hWnd, (HMENU)ID_BUTTONLSTOP, NULL, NULL);
 
 		CreateWindow(TEXT("button"), TEXT("Play"),
 			WS_VISIBLE | WS_CHILD,
-			220, 60, 50, 25,
+			412, 60, 104, 25,
 			hWnd, (HMENU)ID_BUTTONRPLAY, NULL, NULL);
 		CreateWindow(TEXT("button"), TEXT("Pause"),
 			WS_VISIBLE | WS_CHILD,
-			290, 60, 50, 25,
+			526, 60, 104, 25,
 			hWnd, (HMENU)ID_BUTTONRPAUSE, NULL, NULL);
 		CreateWindow(TEXT("button"), TEXT("Stop"),
 			WS_VISIBLE | WS_CHILD,
-			360, 60, 50, 25,
+			640, 60, 104, 25,
 			hWnd, (HMENU)ID_BUTTONRSTOP, NULL, NULL);
 		linkStatus = LINKSTATUS::LINKING;
 		break;
