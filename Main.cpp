@@ -404,23 +404,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				// cout<<"click_X:"<<click_X<<" click_Y:"<<click_Y<<endl;
 			}
 			if (!current_hyper_frame_deque.empty()){
-				// cout<<"size:"<<current_hyper_frame_deque.size()<<endl;
+				cout<<"size:"<<current_hyper_frame_deque.size()<<endl;
 				for (int n=0;n<current_hyper_frame_deque.size();n++){
 					for (int i = 0; i < hyperlink_map[current_hyper_frame_deque[n]].size(); i++) {
 						bool check=check_mouse_location(click_X,click_Y,hyperlink_map[current_hyper_frame_deque[n]][i]);
 						// cout<<"check:"<<check<<endl;
 						if (check){
-							cout<<"GO Hyper!!!"<<endl;
+							cout<<"GO Hyper:"<<hyperlink_map[current_hyper_frame_deque[n]][i][0]<<endl;
 							if (vp1.IsPlaying()){
 								vp1.VideoPause();
 								sp1.SoundPause();
 							}
 							vp2.VideoStop();
 							sp2.SoundStop();
-							vp2.VideoPlayFrom(hyperlink_map[current_hyper_frame_deque[n]][i][0]);
-							sp2.SoundPlay(hyperlink_map[current_hyper_frame_deque[n]][i][0]);
-						}
-
+							// cout<<"frame:"<<hyperlink_map[current_hyper_frame_deque[n]][i][0]]<<endl;
+							cout<<"ms:"<<vp2.FrameTime[hyperlink_map[current_hyper_frame_deque[n]][i][0]]<<endl;
+							vp2.VideoPlayFrom(vp2.FrameTime[hyperlink_map[current_hyper_frame_deque[n]][i][0]]);
+							// vp2.VideoPlayFrom(5000);
+							// sp2.SoundPlay(vp2.FrameTime[hyperlink_map[current_hyper_frame_deque[n]][i][0]]);
+						//
+					}
 					}
 				}
 
